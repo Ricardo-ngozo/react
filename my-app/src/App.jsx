@@ -188,7 +188,7 @@ function Home() {
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {ITEMS.map((item, i) => (
+          {ITEMS.map((item) => (
             <Link
               key={item.id}
               to={`/item/${item.id}`}
