@@ -402,7 +402,7 @@ function Detail() {
 function NotFound() {
   const error = useRouteError();
   const navigate = useNavigate();
-  const is404 = !error || (isRouteErrorResponse(error) && error.status === 404);
+  const isKnownNotFound = !error || (isRouteErrorResponse(error) && error.status === 404);
 
   useEffect(() => {
     document.title = "FM Scout · Page Not Found";
@@ -427,7 +427,7 @@ function NotFound() {
         marginBottom: 16,
         userSelect: "none",
       }}>
-        {is404 ? "404" : "Err"}
+        {isKnownNotFound ? "404" : "Err"}
       </p>
       <h1 style={{
         fontSize: 20,
@@ -435,7 +435,7 @@ function NotFound() {
         marginBottom: 10,
         letterSpacing: "-0.01em",
       }}>
-        {is404 ? "Page not found" : "Something went wrong"}
+        {isKnownNotFound ? "Page not found" : "Something went wrong"}
       </h1>
       <p style={{
         fontSize: 14,
@@ -444,7 +444,7 @@ function NotFound() {
         lineHeight: 1.6,
         marginBottom: 32,
       }}>
-        {is404
+        {isKnownNotFound
           ? "This route doesn't exist. Check the URL or head back to the club index."
           : "An unexpected error occurred. Try going back to safety."}
       </p>
