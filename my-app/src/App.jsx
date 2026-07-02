@@ -21,7 +21,7 @@ const ITEMS = [
     capacity: 23142,
     description:
       "A club from the Balearic Islands with a rich history in Spanish football. Known for their passionate local support and stunning island backdrop.",
-    colour: "#e8001c",
+    color: "#e8001c",
   },
   {
     id: "2",
@@ -32,7 +32,7 @@ const ITEMS = [
     capacity: 32400,
     description:
       "Representing the Canary Islands, Las Palmas play an attractive style of football and have a dedicated fan base across the archipelago.",
-    colour: "#FFCC00",
+    color: "#FFCC00",
   },
   {
     id: "3",
@@ -43,7 +43,7 @@ const ITEMS = [
     capacity: 13500,
     description:
       "A club from Catalonia that has risen through the divisions to establish themselves in La Liga, surprising many with their quality and organisation.",
-    colour: "#cc0000",
+    color: "#cc0000",
   },
   {
     id: "4",
@@ -54,7 +54,7 @@ const ITEMS = [
     capacity: 17700,
     description:
       "A Madrid satellite club known for their physical, organised style. Often punch above their weight with limited resources.",
-    colour: "#005eb8",
+    color: "#005eb8",
   },
   {
     id: "5",
@@ -65,7 +65,7 @@ const ITEMS = [
     capacity: 29000,
     description:
       "From Galicia in northwestern Spain, Celta Vigo have a tradition of developing technical players and playing attractive football.",
-    colour: "#87CEEB",
+    color: "#87CEEB",
   },
 ];
 
@@ -213,9 +213,9 @@ function Home() {
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
-                  background: item.colour,
+                  background: item.color,
                   flexShrink: 0,
-                  boxShadow: hovered === item.id ? `0 0 8px ${item.colour}88` : "none",
+                  boxShadow: hovered === item.id ? `0 0 8px ${item.color}88` : "none",
                   transition: "box-shadow 0.2s",
                 }} />
                 <span style={{
@@ -276,11 +276,11 @@ function Detail() {
       <Nav />
       <main style={{ maxWidth: 760, margin: "0 auto", padding: "56px 24px 80px" }}>
 
-        {/* Club colour bar */}
+        {/* Club color bar */}
         <div style={{
           height: 3,
           width: 40,
-          background: item.colour,
+          background: item.color,
           marginBottom: 24,
           borderRadius: 2,
         }} />
