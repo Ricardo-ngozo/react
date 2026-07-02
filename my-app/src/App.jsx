@@ -159,6 +159,9 @@ function Nav() {
 
 function Home() {
   const [hovered, setHovered] = useState(null);
+  useEffect(() => {
+    document.title = "FM Scout · La Liga Club Index";
+  }, []);
 
   return (
     <div>
@@ -264,9 +267,12 @@ function Detail() {
   const item = ITEMS.find((i) => i.id === id);
 
   useEffect(() => {
-    if (!item) navigate("/404", { replace: true });
+    if (!item) {
+      navigate("/404", { replace: true });
+    } else {
+      document.title = `FM Scout · ${item.name}`;
+    }
   }, [item, navigate]);
-
   if (!item) return null;
 
   const stats = [
@@ -397,6 +403,10 @@ function NotFound() {
   const error = useRouteError();
   const navigate = useNavigate();
   const is404 = !error || (isRouteErrorResponse(error) && error.status === 404);
+
+  useEffect(() => {
+    document.title = "FM Scout · Page Not Found";
+  }, []);
 
   return (
     <div style={{
