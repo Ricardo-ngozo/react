@@ -360,6 +360,7 @@ function Detail() {
               <p style={{
                 fontSize: 15,
                 fontWeight: 600,
+                lineHeight: 1.4,
                 color: tokens.text,
               }}>
                 {s.value}
