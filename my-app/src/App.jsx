@@ -115,7 +115,7 @@ const globalStyle = `
 
 function Nav() {
   return (
-    <nav style={{
+    <nav aria-label="Site navigation" style={{
       borderBottom: `1px solid ${tokens.border}`,
       padding: "0 24px",
       display: "flex",
