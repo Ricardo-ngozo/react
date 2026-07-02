@@ -328,7 +328,7 @@ function Detail() {
           {stats.map((s) => (
             <div key={s.label} style={{
               background: tokens.surface,
-              padding: "20px 20px",
+              padding: "20px",
             }}>
               <p style={{
                 fontSize: 10,
