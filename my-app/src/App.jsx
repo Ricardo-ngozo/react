@@ -160,6 +160,7 @@ function Nav() {
 
 function Home() {
   const [hovered, setHovered] = useState(null);
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = "FM Scout · La Liga Club Index";
   }, []);
@@ -261,7 +262,7 @@ function Home() {
       </main>
 
       <button
-        onClick={() => window.location.href = "/blah"}
+        onClick={() => navigate("/blah")}
         style={{
           position: "fixed",
           bottom: 24,
