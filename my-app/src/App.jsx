@@ -71,10 +71,12 @@ const ITEMS = [
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
+// CHANGE TO:
 const tokens = {
   bg: "#0d0d0d",
   surface: "#161616",
   border: "#2a2a2a",
+  borderHover: "#3a3a3a",
   text: "#f0ede8",
   muted: "#888",
   accent: "#c8ff00",
@@ -199,7 +201,7 @@ function Home() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "18px 20px",
-                border: `1px solid ${hovered === item.id ? "#3a3a3a" : tokens.border}`,
+                border: `1px solid ${hovered === item.id ? tokens.borderHover : tokens.border}`,
                 borderRadius: 6,
                 background: hovered === item.id ? tokens.surface : "transparent",
                 transition: "background 0.15s, border-color 0.15s",
