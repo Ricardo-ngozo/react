@@ -114,6 +114,9 @@ const globalStyle = `
 // ─── Shared components ────────────────────────────────────────────────────────
 
 function Nav() {
+  const handleBackEnter = (e) => { e.target.style.color = tokens.text; };
+  const handleBackLeave = (e) => { e.target.style.color = tokens.muted; };
+
   return (
     <nav aria-label="Site navigation" style={{
       borderBottom: `1px solid ${tokens.border}`,
@@ -136,21 +139,22 @@ function Nav() {
       }}>
         FM Scout
       </Link>
-      <Link to="/" style={{
-        fontSize: 12,
-        color: tokens.muted,
-        letterSpacing: "0.06em",
-        transition: "color 0.15s",
-      }}
-        onMouseEnter={e => e.target.style.color = tokens.text}
-        onMouseLeave={e => e.target.style.color = tokens.muted}
+      <Link
+        to="/"
+        onMouseEnter={handleBackEnter}
+        onMouseLeave={handleBackLeave}
+        style={{
+          fontSize: 12,
+          color: tokens.muted,
+          letterSpacing: "0.06em",
+          transition: "color 0.15s",
+        }}
       >
         ← All Clubs
       </Link>
     </nav>
   );
 }
-
 // ─── Home page ────────────────────────────────────────────────────────────────
 
 function Home() {
