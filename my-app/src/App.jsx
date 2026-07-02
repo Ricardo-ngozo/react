@@ -113,7 +113,7 @@ const globalStyle = `
 `;
 
 // ─── Shared components ────────────────────────────────────────────────────────
-const { pathname } = useLocation();
+
 function Nav() {
   const handleBackEnter = (e) => { e.target.style.color = tokens.text; };
   const handleBackLeave = (e) => { e.target.style.color = tokens.muted; };
@@ -131,10 +131,7 @@ function Nav() {
       background: tokens.bg,
       zIndex: 100,
     }}>
-       <Link
-        to="/"
-        aria-current={pathname === "/" ? "page" : undefined}
-        style={{
+       <Link to="/" style={{
         fontSize: 13,
         fontWeight: 700,
         letterSpacing: "0.12em",
