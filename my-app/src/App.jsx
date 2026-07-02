@@ -335,16 +335,20 @@ function Detail() {
         </p>
 
         {/* Stats grid */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: 1,
-          background: tokens.border,
-          border: `1px solid ${tokens.border}`,
-          borderRadius: 6,
-          overflow: "hidden",
-          marginBottom: 48,
-        }}>
+         <div
+          role="region"
+          aria-label="Club statistics"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gap: 1,
+            background: tokens.border,
+            border: `1px solid ${tokens.border}`,
+            borderRadius: 6,
+            overflow: "hidden",
+            marginBottom: 48,
+          }}
+        >
           {stats.map((s) => (
             <div key={s.label} style={{
               background: tokens.surface,
