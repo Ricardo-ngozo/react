@@ -193,10 +193,10 @@ function Home() {
           Five clubs. One mission. Choose the team you're going to build from the ground up.
         </p>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <ul role="list" aria-label="La Liga clubs" style={{ display: "flex", flexDirection: "column", gap: 2, listStyle: "none" }}>
           {ITEMS.map((item) => (
+            <li key={item.id}>
             <Link
-              key={item.id}
               to={`/item/${item.id}`}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
@@ -248,8 +248,9 @@ function Home() {
                 </span>
               </div>
             </Link>
+        </li>
           ))}
-        </div>
+        </ul>  
       </main>
     </div>
   );
