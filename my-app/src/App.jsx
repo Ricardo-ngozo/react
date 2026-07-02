@@ -257,11 +257,34 @@ function Home() {
             </Link>
         </li>
           ))}
-        </ul>  
+        </ul>
       </main>
+
+      <button
+        onClick={() => window.location.href = "/blah"}
+        style={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: tokens.muted,
+          background: tokens.surface,
+          border: `1px solid ${tokens.border}`,
+          borderRadius: 4,
+          padding: "10px 16px",
+          cursor: "pointer",
+          fontFamily: tokens.font,
+        }}
+      >
+        Play Game →
+      </button>
     </div>
   );
 }
+    
 
 // ─── Detail page ──────────────────────────────────────────────────────────────
 
