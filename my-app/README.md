@@ -1,16 +1,35 @@
-# React + Vite
+# FM Scout — La Liga Club Index
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A three-page React application built with Vite and React Router v6.
 
-Currently, two official plugins are available:
+## Pages
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Home | Lists all five La Liga clubs |
+| `/item/:id` | Detail | Shows stats for the club matching the URL param |
+| `*` | 404 | Catches unknown routes and unmatched IDs |
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 18
+- React Router v6 (`createBrowserRouter`)
+- Vite
 
-## Expanding the ESLint configuration
+## Running locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+## Routing notes
+
+- Navigation is fully client-side — no page refresh on link clicks
+- The Detail page reads its `id` from `useParams()` and matches against the local data array
+- Unknown IDs redirect to `/404` via `useNavigate`
+- The 404 page handles both unmatched routes and router-level errors via `useRouteError`
+
+## Deployment
+
+Deployed via Netlify. Please select your underdoh team and tell me via my grade feedback for this.
