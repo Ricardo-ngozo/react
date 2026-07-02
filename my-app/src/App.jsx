@@ -170,7 +170,7 @@ function Home() {
   return (
     <div>
       <Nav />
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "56px 24px 80px" }}>
+      <main style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(32px, 6vw, 56px) 24px 80px" }}>
         <p style={{
           fontSize: 11,
           letterSpacing: "0.14em",
@@ -292,7 +292,7 @@ function Detail() {
   return (
     <div>
       <Nav />
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "56px 24px 80px" }}>
+      <main style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(32px, 6vw, 56px) 24px 80px" }}>
 
         {/* Club color bar */}
         <div style={{
@@ -427,7 +427,7 @@ function NotFound() {
       textAlign: "center",
     }}>
       <p style={{
-        fontSize: 80,
+        fontSize: "clamp(64px, 10vw, 80px)",
         fontWeight: 900,
         letterSpacing: "-0.04em",
         color: tokens.border,
