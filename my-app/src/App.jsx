@@ -220,15 +220,18 @@ function Home() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <span style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: "50%",
-                  background: item.color,
-                  flexShrink: 0,
-                  boxShadow: hovered === item.id ? `0 0 8px ${item.color}88` : "none",
-                  transition: "box-shadow 0.2s",
-                }} />
+               <span
+                  aria-hidden="true"
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    background: item.color,
+                    flexShrink: 0,
+                    boxShadow: hovered === item.id ? `0 0 8px ${item.color}88` : "none",
+                    transition: "box-shadow 0.2s",
+                  }}
+                />
                 <span style={{
                   fontSize: 15,
                   fontWeight: 600,
