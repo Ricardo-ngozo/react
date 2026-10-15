@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tokens } from '../styles/tokens.js';
 import { useGame } from '../context/useGame.js';
@@ -18,13 +18,16 @@ export default function TeamSelection() {
   const [compareList, setCompareList] = useState([]);
   const [showCompare, setShowCompare] = useState(false);
   const [revealed,    setRevealed]    = useState(true);
+  const prevFeaturedId                = useRef(null);
 
   useEffect(() => {
     document.title = 'SIDELINE — Choose Your Club';
   }, []);
 
-  // Reveal animation when featured changes
+  // Reveal animation when featured changes — guard with ref to avoid setState-in-effect error
   useEffect(() => {
+    if (prevFeaturedId.current === featured?.id) return;
+    prevFeaturedId.current = featured?.id ?? null;
     setRevealed(false);
     const t = setTimeout(() => setRevealed(true), 50);
     return () => clearTimeout(t);
