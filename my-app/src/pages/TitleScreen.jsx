@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tokens } from '../styles/tokens.js';
+import { ENV } from '../data/assets.js';
 
 export default function TitleScreen() {
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
-  const [pulse, setPulse] = useState(false);
+  const [pulse, setPulse]   = useState(false);
 
   useEffect(() => {
     document.title = 'SIDELINE — Football is more than 90 minutes.';
-    const t = setTimeout(() => setVisible(true), 80);
-    const p = setTimeout(() => setPulse(true), 600);
-    return () => { clearTimeout(t); clearTimeout(p); };
+    const t1 = setTimeout(() => setVisible(true), 100);
+    const t2 = setTimeout(() => setPulse(true),   700);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   const enter = () => navigate('/menu');
@@ -36,76 +37,64 @@ export default function TitleScreen() {
         overflow: 'hidden',
       }}
     >
-      {/* Stadium atmosphere background */}
+      {/* ── Background: stadium aerial / pitch-level ── */}
+      {/* Bottom half — pitch from player tunnel perspective */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: `url(${ENV.stadiumPitch})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 40%',
+        opacity: visible ? 0.45 : 0,
+        transform: visible ? 'scale(1)' : 'scale(1.04)',
+        transition: 'opacity 1.2s ease, transform 1.6s ease',
+        willChange: 'transform, opacity',
+      }} />
+
+      {/* ── Multi-layer overlay ── */}
       <div style={{
         position: 'absolute',
         inset: 0,
         background: `
-          radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,255,0,0.04) 0%, transparent 60%),
-          radial-gradient(ellipse 60% 40% at 50% 100%, rgba(255,255,255,0.02) 0%, transparent 50%),
-          linear-gradient(180deg, #0a0a0a 0%, #000 60%, #0a0a0a 100%)
-        `,
-      }} />
-
-      {/* Pitch lines */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '140%',
-        height: '35%',
-        background: `
-          repeating-linear-gradient(
-            90deg,
-            transparent 0px,
-            transparent 59px,
-            rgba(255,255,255,0.018) 60px,
-            rgba(255,255,255,0.018) 61px
+          linear-gradient(to bottom,
+            rgba(0,0,0,0.88) 0%,
+            rgba(0,0,0,0.45) 45%,
+            rgba(0,0,0,0.65) 75%,
+            rgba(0,0,0,0.95) 100%
           )
         `,
-        maskImage: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 100%)',
       }} />
 
-      {/* Centre circle */}
+      {/* ── Lime glow from top ── */}
       <div style={{
         position: 'absolute',
-        bottom: '-8%',
+        top: 0,
         left: '50%',
         transform: 'translateX(-50%)',
-        width: 320,
-        height: 320,
-        borderRadius: '50%',
-        border: '1px solid rgba(255,255,255,0.06)',
+        width: '80%',
+        height: '40%',
+        background: `radial-gradient(ellipse at 50% 0%, rgba(200,255,0,0.06) 0%, transparent 65%)`,
+        pointerEvents: 'none',
       }} />
 
-      {/* Floodlight beams */}
-      {[[-40, -15], [40, -15]].map(([x, y], i) => (
-        <div key={i} style={{
-          position: 'absolute',
-          top: 0,
-          left: `calc(50% + ${x}%)`,
-          width: 1,
-          height: '50%',
-          background: `linear-gradient(to bottom, rgba(255,255,220,0.06), transparent)`,
-          transform: `rotate(${y}deg)`,
-          transformOrigin: 'top center',
-          filter: 'blur(3px)',
-        }} />
-      ))}
-
-      {/* Main content */}
+      {/* ── Main content ── */}
       <div style={{
         position: 'relative',
+        zIndex: 1,
         textAlign: 'center',
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(20px)',
-        transition: 'opacity 0.8s ease, transform 0.8s ease',
+        transform: visible ? 'translateY(0)' : 'translateY(24px)',
+        transition: 'opacity 0.9s ease, transform 0.9s ease',
         padding: '0 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 0,
       }}>
+        {/* Eyebrow */}
         <p style={{
-          fontSize: 12,
-          letterSpacing: '0.35em',
+          fontSize: 'clamp(10px, 1.5vw, 13px)',
+          letterSpacing: '0.4em',
           textTransform: 'uppercase',
           color: tokens.muted,
           marginBottom: 20,
@@ -114,30 +103,45 @@ export default function TitleScreen() {
           Football Management
         </p>
 
+        {/* Wordmark */}
         <h1 style={{
           fontFamily: tokens.fontDisplay,
-          fontSize: 'clamp(72px, 18vw, 160px)',
+          fontSize: 'clamp(80px, 18vw, 168px)',
           fontWeight: 900,
           letterSpacing: '0.04em',
-          lineHeight: 0.9,
+          lineHeight: 0.88,
           color: tokens.text,
-          marginBottom: 10,
+          textShadow: '0 4px 60px rgba(0,0,0,0.9)',
+          marginBottom: 18,
         }}>
           SIDE<span style={{ color: tokens.accent }}>LINE</span>
         </h1>
 
+        {/* Accent rule */}
+        <div style={{
+          width: visible ? 64 : 0,
+          height: 2,
+          background: tokens.accent,
+          borderRadius: 1,
+          transition: 'width 0.6s ease 0.4s',
+          marginBottom: 20,
+        }} />
+
+        {/* Tagline */}
         <p style={{
-          fontSize: 'clamp(12px, 2vw, 15px)',
-          letterSpacing: '0.2em',
+          fontSize: 'clamp(11px, 1.8vw, 15px)',
+          letterSpacing: '0.22em',
           textTransform: 'uppercase',
           color: tokens.muted,
-          marginBottom: 64,
+          marginBottom: 56,
           fontWeight: 400,
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.7s ease 0.3s',
         }}>
           Football is more than 90 minutes.
         </p>
 
-        {/* CTA */}
+        {/* CTA pill */}
         <div style={{
           opacity: pulse ? 1 : 0,
           transition: 'opacity 0.6s ease',
@@ -145,17 +149,17 @@ export default function TitleScreen() {
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 12,
             border: `1px solid ${tokens.accentBorder}`,
             borderRadius: 4,
-            padding: '14px 32px',
+            padding: '14px 36px',
             background: tokens.accentDim,
-            animation: 'titlePulse 2s ease-in-out infinite',
+            animation: 'titlePulse 2.2s ease-in-out infinite',
           }}>
             <span style={{
-              fontSize: 12,
+              fontSize: 'clamp(10px, 1.4vw, 12px)',
               fontWeight: 700,
-              letterSpacing: '0.2em',
+              letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: tokens.accent,
             }}>
@@ -165,15 +169,17 @@ export default function TitleScreen() {
         </div>
       </div>
 
-      {/* Bottom tagline */}
+      {/* ── Bottom tagline ── */}
       <div style={{
         position: 'absolute',
         bottom: 40,
         left: '50%',
         transform: 'translateX(-50%)',
         textAlign: 'center',
-        opacity: visible ? 0.5 : 0,
-        transition: 'opacity 1s ease 0.5s',
+        opacity: visible ? 0.45 : 0,
+        transition: 'opacity 1s ease 0.6s',
+        zIndex: 1,
+        whiteSpace: 'nowrap',
       }}>
         <p style={{
           fontSize: 11,
@@ -187,8 +193,8 @@ export default function TitleScreen() {
 
       <style>{`
         @keyframes titlePulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.55; }
+          0%, 100% { opacity: 1; box-shadow: 0 0 0 rgba(200,255,0,0); }
+          50% { opacity: 0.6; box-shadow: 0 0 24px rgba(200,255,0,0.12); }
         }
       `}</style>
     </div>
