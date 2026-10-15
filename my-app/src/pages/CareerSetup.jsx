@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { tokens } from '../styles/tokens.js';
-import { useGame } from '../context/GameContext.jsx';
+import { useGame } from '../context/useGame.js';
 import { Button } from '../components/ui/Button.jsx';
 import { Card } from '../components/ui/Card.jsx';
 import { Input, Select } from '../components/ui/Input.jsx';
@@ -66,7 +66,7 @@ const PROJECTS = [
   { id: 'continental', label: 'Continental Powerhouse', emoji: '🌍', desc: 'Turn this club into a dominant force on the continental stage.' },
 ];
 
-function StepHeader({ step, title, subtitle, onBack }) {
+function StepHeader({ step, onBack }) {
   const navigate = useNavigate();
   return (
     <header style={{

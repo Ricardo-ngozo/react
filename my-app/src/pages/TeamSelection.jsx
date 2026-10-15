@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tokens } from '../styles/tokens.js';
-import { useGame } from '../context/GameContext.jsx';
+import { useGame } from '../context/useGame.js';
 import { CLUBS, LEAGUES, COUNTRIES, getLeaguesByCountry, getClubsByLeague } from '../data/clubs.js';
 import { ClubCrest } from '../components/ui/ClubCrest.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { Badge } from '../components/ui/Badge.jsx';
 
 export default function TeamSelection() {
   const navigate = useNavigate();
@@ -13,25 +12,23 @@ export default function TeamSelection() {
   const [search, setSearch] = useState('');
   const [countryId, setCountryId] = useState('');
   const [leagueId, setLeagueId] = useState('');
-  const [featured, setFeatured] = useState(null);
+  // Lazy init: pick a random club immediately, no effect needed
+  const [featured, setFeatured] = useState(() => CLUBS[Math.floor(Math.random() * CLUBS.length)]);
   const [shortlist, setShortlist] = useState([]);
   const [compareList, setCompareList] = useState([]);
   const [showCompare, setShowCompare] = useState(false);
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(true);
 
   useEffect(() => {
     document.title = 'SIDELINE — Choose Your Club';
-    // Start with random featured
-    const rand = CLUBS[Math.floor(Math.random() * CLUBS.length)];
-    setFeatured(rand);
   }, []);
 
+  // Reveal animation when featured changes
   useEffect(() => {
-    if (featured) {
-      setRevealed(false);
-      const t = setTimeout(() => setRevealed(true), 50);
-      return () => clearTimeout(t);
-    }
+    const t = setTimeout(() => setRevealed(true), 50);
+    setRevealed(false);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featured?.id]);
 
   const leagues = countryId ? getLeaguesByCountry(countryId) : LEAGUES;

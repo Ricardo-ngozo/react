@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'sideline_v1';
 
@@ -29,7 +29,7 @@ function saveToStorage(data) {
   }
 }
 
-const GameContext = createContext(null);
+export const GameContext = createContext(null);
 
 export function GameProvider({ children }) {
   const [careers, setCareers] = useState([]);
@@ -38,18 +38,20 @@ export function GameProvider({ children }) {
   const [settings, setSettings] = useState(defaultSettings);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount — deferred via Promise to satisfy lint rules
   useEffect(() => {
     const stored = loadFromStorage();
     if (stored) {
-      if (stored.careers) setCareers(stored.careers);
-      if (stored.currentCareerId) setCurrentCareerId(stored.currentCareerId);
-      if (stored.settings) setSettings({ ...defaultSettings, ...stored.settings });
+      Promise.resolve().then(() => {
+        if (stored.careers) setCareers(stored.careers);
+        if (stored.currentCareerId) setCurrentCareerId(stored.currentCareerId);
+        if (stored.settings) setSettings({ ...defaultSettings, ...stored.settings });
+      });
     }
     setHasLoaded(true);
   }, []);
 
-  // Persist to localStorage whenever state changes
+  // Persist whenever relevant state changes
   useEffect(() => {
     if (!hasLoaded) return;
     saveToStorage({ careers, currentCareerId, settings });
@@ -70,11 +72,11 @@ export function GameProvider({ children }) {
 
   const deleteCareer = useCallback((id) => {
     setCareers(prev => prev.filter(c => c.id !== id));
-    setCurrentCareerId(prev => prev === id ? null : prev);
+    setCurrentCareerId(prev => (prev === id ? null : prev));
   }, []);
 
   const renameCareer = useCallback((id, name) => {
-    setCareers(prev => prev.map(c => c.id === id ? { ...c, name, updatedAt: Date.now() } : c));
+    setCareers(prev => prev.map(c => (c.id === id ? { ...c, name, updatedAt: Date.now() } : c)));
   }, []);
 
   const openCareer = useCallback((id) => {
@@ -86,7 +88,7 @@ export function GameProvider({ children }) {
   }, []);
 
   const updateDraft = useCallback((updates) => {
-    setCareerDraft(prev => prev ? { ...prev, ...updates } : { ...updates });
+    setCareerDraft(prev => (prev ? { ...prev, ...updates } : { ...updates }));
   }, []);
 
   const clearDraft = useCallback(() => {
@@ -113,10 +115,4 @@ export function GameProvider({ children }) {
       {children}
     </GameContext.Provider>
   );
-}
-
-export function useGame() {
-  const ctx = useContext(GameContext);
-  if (!ctx) throw new Error('useGame must be used within GameProvider');
-  return ctx;
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tokens } from '../styles/tokens.js';
-import { useGame } from '../context/GameContext.jsx';
+import { useGame } from '../context/useGame.js';
 import { Button } from '../components/ui/Button.jsx';
 import { Input } from '../components/ui/Input.jsx';
 import { CLUBS, LEAGUES } from '../data/clubs.js';

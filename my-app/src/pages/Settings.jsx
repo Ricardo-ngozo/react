@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tokens } from '../styles/tokens.js';
-import { useGame } from '../context/GameContext.jsx';
-import { Button } from '../components/ui/Button.jsx';
+import { useGame } from '../context/useGame.js';
 
 function Toggle({ label, desc, checked, onChange }) {
   return (
