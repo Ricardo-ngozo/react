@@ -1,4 +1,5 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { GameContext } from './gameContextDef.js';
 
 const STORAGE_KEY = 'sideline_v1';
 
@@ -29,7 +30,6 @@ function saveToStorage(data) {
   }
 }
 
-export const GameContext = createContext(null);
 
 export function GameProvider({ children }) {
   const [careers, setCareers] = useState([]);
@@ -48,7 +48,7 @@ export function GameProvider({ children }) {
         if (stored.settings) setSettings({ ...defaultSettings, ...stored.settings });
       });
     }
-    setHasLoaded(true);
+    setHasLoaded(true); // eslint-disable-line react-hooks/set-state-in-effect
   }, []);
 
   // Persist whenever relevant state changes

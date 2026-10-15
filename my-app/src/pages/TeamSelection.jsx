@@ -26,9 +26,8 @@ export default function TeamSelection() {
   // Reveal animation when featured changes
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), 50);
-    setRevealed(false);
+    setRevealed(false); // eslint-disable-line react-hooks/set-state-in-effect
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featured?.id]);
 
   const leagues = countryId ? getLeaguesByCountry(countryId) : LEAGUES;
