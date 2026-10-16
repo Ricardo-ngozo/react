@@ -1,118 +1,155 @@
+import { normalizeCareer, parseCareerBackup } from '../data/persistence.js';
 import { useState, useEffect, useCallback } from 'react';
 import { GameContext } from './gameContextDef.js';
-
 const STORAGE_KEY = 'sideline_v1';
-
-const defaultSettings = {
+const DEFAULT_SETTINGS = {
   animations: true,
   reducedMotion: false,
-  theme: 'dark',
   fontSize: 'medium',
+  theme: 'dark',
+  accent: 'lime',
+  density: 'comfortable',
+  contrast: 'standard',
+  atmosphere: true,
+  showHints: true,
+  keyboardHints: true,
+  currency: 'EUR',
+  dateFormat: 'day-first',
+  scoutingDetail: 'full',
+  selectionPriority: 'balanced',
+  preparationReminders: true,
+  matchPresentation: 'extended',
+  difficulty: 'balanced'
 };
-
-function loadFromStorage() {
+function readSaved() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') return parsed;
-    return null;
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    return value && typeof value === 'object' ? value : {};
   } catch {
-    return null;
+    return {};
   }
 }
-
-function saveToStorage(data) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    // Storage full or unavailable
+function cleanSettings(settings) {
+  const next = {
+    ...DEFAULT_SETTINGS
+  };
+  if (!settings || typeof settings !== 'object') return next;
+  for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
+    if (typeof settings[key] === typeof value) next[key] = settings[key];
   }
+  return next;
 }
-
-
-export function GameProvider({ children }) {
-  const [careers, setCareers] = useState([]);
-  const [currentCareerId, setCurrentCareerId] = useState(null);
-  const [careerDraft, setCareerDraft] = useState(null);
-  const [settings, setSettings] = useState(defaultSettings);
-  const [hasLoaded, setHasLoaded] = useState(false);
-
-  // Load from localStorage on mount — deferred via Promise to satisfy lint rules
+export function GameProvider({
+  children
+}) {
+  const [initial] = useState(readSaved);
+  const [careers, setCareers] = useState(() => Array.isArray(initial.careers) ? initial.careers.map(normalizeCareer).filter(Boolean) : []);
+  const [currentCareerId, setCurrentCareerId] = useState(initial.currentCareerId || null);
+  const [careerDraft, setCareerDraft] = useState(initial.careerDraft || null);
+  const [settings, setSettings] = useState(() => cleanSettings(initial.settings));
+  const [storageError, setStorageError] = useState('');
   useEffect(() => {
-    const stored = loadFromStorage();
-    if (stored) {
-      Promise.resolve().then(() => {
-        if (stored.careers) setCareers(stored.careers);
-        if (stored.currentCareerId) setCurrentCareerId(stored.currentCareerId);
-        if (stored.settings) setSettings({ ...defaultSettings, ...stored.settings });
-      });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        version: 2,
+        careers,
+        currentCareerId,
+        careerDraft,
+        settings
+      }));
+      queueMicrotask(() => setStorageError(''));
+    } catch {
+      queueMicrotask(() => setStorageError('Your browser could not save these changes. Export a backup before closing.'));
     }
-    setHasLoaded(true); // eslint-disable-line react-hooks/set-state-in-effect
-  }, []);
-
-  // Persist whenever relevant state changes
+  }, [careers, currentCareerId, careerDraft, settings]);
   useEffect(() => {
-    if (!hasLoaded) return;
-    saveToStorage({ careers, currentCareerId, settings });
-  }, [careers, currentCareerId, settings, hasLoaded]);
-
-  const currentCareer = careers.find(c => c.id === currentCareerId) || null;
-
-  const saveCareer = useCallback((career) => {
+    const root = document.documentElement;
+    root.dataset.motion = !settings.animations ? 'off' : settings.reducedMotion ? 'reduced' : 'full';
+    root.dataset.accent = settings.accent;
+    root.dataset.density = settings.density;
+    root.dataset.contrast = settings.contrast;
+    root.dataset.text = settings.fontSize;
+    root.dataset.atmosphere = settings.atmosphere ? 'on' : 'off';
+  }, [settings]);
+  const saveCareer = useCallback(career => {
     setCareers(prev => {
-      const exists = prev.find(c => c.id === career.id);
-      if (exists) {
-        return prev.map(c => c.id === career.id ? { ...c, ...career, updatedAt: Date.now() } : c);
-      }
-      return [...prev, { ...career, createdAt: Date.now(), updatedAt: Date.now() }];
+      const exists = prev.some(c => c.id === career.id);
+      const next = {
+        ...career,
+        updatedAt: Date.now()
+      };
+      return exists ? prev.map(c => c.id === career.id ? {
+        ...c,
+        ...next
+      } : c) : [...prev, {
+        ...next,
+        createdAt: Date.now()
+      }];
     });
     setCurrentCareerId(career.id);
   }, []);
-
-  const deleteCareer = useCallback((id) => {
+  const updateCareer = useCallback((id, updates) => {
+    setCareers(prev => prev.map(c => c.id === id ? {
+      ...c,
+      ...(typeof updates === 'function' ? updates(c) : updates),
+      updatedAt: Date.now()
+    } : c));
+  }, []);
+  const updateWorkspace = useCallback((id, updates) => {
+    setCareers(prev => prev.map(c => c.id === id ? {
+      ...c,
+      workspace: {
+        ...c.workspace,
+        ...(typeof updates === 'function' ? updates(c.workspace || {}) : updates)
+      },
+      updatedAt: Date.now()
+    } : c));
+  }, []);
+  const deleteCareer = useCallback(id => {
     setCareers(prev => prev.filter(c => c.id !== id));
-    setCurrentCareerId(prev => (prev === id ? null : prev));
+    setCurrentCareerId(prev => prev === id ? null : prev);
   }, []);
-
   const renameCareer = useCallback((id, name) => {
-    setCareers(prev => prev.map(c => (c.id === id ? { ...c, name, updatedAt: Date.now() } : c)));
+    if (name.trim()) updateCareer(id, {
+      name: name.trim()
+    });
+  }, [updateCareer]);
+  const openCareer = useCallback(id => setCurrentCareerId(id), []);
+  const updateSettings = useCallback(updates => setSettings(prev => cleanSettings({
+    ...prev,
+    ...updates
+  })), []);
+  const resetSettings = useCallback(() => setSettings({
+    ...DEFAULT_SETTINGS
+  }), []);
+  const updateDraft = useCallback(updates => setCareerDraft(prev => ({
+    ...prev,
+    ...updates
+  })), []);
+  const clearDraft = useCallback(() => setCareerDraft(null), []);
+  const importCareers = useCallback(data => {
+    const incoming = parseCareerBackup(data);
+    setCareers(prev => [...prev, ...incoming.filter(c => !prev.some(existing => existing.id === c.id))]);
   }, []);
-
-  const openCareer = useCallback((id) => {
-    setCurrentCareerId(id);
-  }, []);
-
-  const updateSettings = useCallback((updates) => {
-    setSettings(prev => ({ ...prev, ...updates }));
-  }, []);
-
-  const updateDraft = useCallback((updates) => {
-    setCareerDraft(prev => (prev ? { ...prev, ...updates } : { ...updates }));
-  }, []);
-
-  const clearDraft = useCallback(() => {
-    setCareerDraft(null);
-  }, []);
-
-  return (
-    <GameContext.Provider value={{
-      careers,
-      currentCareer,
-      currentCareerId,
-      careerDraft,
-      settings,
-      hasLoaded,
-      saveCareer,
-      deleteCareer,
-      renameCareer,
-      openCareer,
-      updateSettings,
-      updateDraft,
-      clearDraft,
-      setCurrentCareerId,
-    }}>
-      {children}
-    </GameContext.Provider>
-  );
+  return <GameContext.Provider value={{
+    careers,
+    currentCareer: careers.find(c => c.id === currentCareerId) || null,
+    currentCareerId,
+    careerDraft,
+    settings,
+    hasLoaded: true,
+    storageError,
+    saveCareer,
+    updateCareer,
+    updateWorkspace,
+    deleteCareer,
+    renameCareer,
+    openCareer,
+    updateSettings,
+    resetSettings,
+    updateDraft,
+    clearDraft,
+    setCurrentCareerId,
+    importCareers
+  }}>{children}</GameContext.Provider>;
 }

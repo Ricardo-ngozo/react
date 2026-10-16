@@ -1,3 +1,4 @@
+import { EXTRA_CLUBS } from './expandedClubs.js';
 // SIDELINE — Curated Football World Data
 // NOTE: This is a curated football catalogue, not a live-season dataset.
 // Club information uses verified historical facts. No current league positions,
@@ -24,6 +25,7 @@ export const LEAGUES = [
 ];
 
 export const CLUBS = [
+  ...EXTRA_CLUBS,
   // ── SPAIN — La Liga ──────────────────────────────────────────────────────
   {
     id: 'mallorca',

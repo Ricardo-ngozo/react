@@ -1,63 +1,29 @@
-import { tokens } from '../../styles/tokens.js';
-
-// Placeholder crest using club initials and colour
-export function ClubCrest({ club, size = 48 }) {
+export function ClubCrest({
+  club,
+  size = 48
+}) {
   if (!club) return null;
-  const initials = club.shortName
-    ? club.shortName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-    : club.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-
-  const fontSize = size < 36 ? size * 0.38 : size < 60 ? size * 0.32 : size * 0.28;
-
-  return (
-    <div
-      aria-label={`${club.name} crest`}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: `linear-gradient(135deg, ${club.color}33 0%, ${club.color}66 100%)`,
-        border: `2px solid ${club.color}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-        fontFamily: tokens.fontDisplay,
-        fontWeight: 900,
-        fontSize: fontSize,
-        color: club.color,
-        letterSpacing: '-0.02em',
-        userSelect: 'none',
-      }}
-    >
-      {initials}
-    </div>
-  );
+  const initials = (club.shortName || club.name).replace(/\b(FC|CF|AFC|UD|RCD|TSG)\b/g, '').trim().split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const color = club.color === '#000000' ? club.colorSecondary || '#f2c45a' : club.color;
+  return <div className="club-crest" role="img" aria-label={`${club.name} club monogram`} style={{
+    '--club-color': color,
+    width: size,
+    height: size * 1.12,
+    fontSize: size * .3
+  }}>
+<svg viewBox="0 0 48 54" aria-hidden="true">
+<path d="M3 4 24 1 45 4v24c0 13-21 24-21 24S3 41 3 28Z" fill="currentColor" fillOpacity=".11" stroke="currentColor" strokeWidth="1.3" />
+<path d="M8 9 24 7 40 9v18c0 9-16 18-16 18S8 36 8 27Z" fill="none" stroke="currentColor" strokeWidth=".6" opacity=".4" />
+</svg>
+<span>{initials || club.name[0]}</span>
+</div>;
 }
-
-export function LeagueIcon({ league, size = 32 }) {
-  if (!league) return null;
-  const initial = league.name[0].toUpperCase();
-
-  return (
-    <div
-      aria-label={league.name}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: tokens.radius.sm,
-        background: tokens.surface,
-        border: `1px solid ${tokens.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: size * 0.4,
-        fontWeight: 700,
-        color: tokens.muted,
-        flexShrink: 0,
-      }}
-    >
-      {initial}
-    </div>
-  );
+export function LeagueIcon({
+  league,
+  size = 32
+}) {
+  return league ? <span className="league-icon" style={{
+    width: size,
+    height: size
+  }}>{league.name[0]}</span> : null;
 }

@@ -1,85 +1,74 @@
 /**
- * SIDELINE Asset Manifest
- * All paths are relative to /public — served at root URL by Vite.
- * Use these keys everywhere instead of hardcoded paths.
+ * SIDELINE asset manifest.
+ * Images were checked against the originals in assets/avatars and game assets.
+ * Optimized portraits retain their alpha channel for clean compositing.
  */
 
-// ── Manager Avatars ──────────────────────────────────────────────────────────
-// Realistic rendered portraits for manager creation.
-// White/transparent bg so they composite cleanly on dark surfaces.
+const asset = (filename) => `/assets/optimized/${filename}`;
 
 export const AVATARS = [
   {
     id: 'avatar-a',
-    src: '/assets/avatars/avatar-a.png',
-    label: 'The Dark Horse',
-    desc: 'Dark-skinned, formal suit, commanding presence',
+    src: asset('portrait-braided-blazer.webp'),
+    label: 'The Visionary',
+    desc: 'Braided hair, black blazer and crew-neck top',
   },
   {
     id: 'avatar-b',
-    src: '/assets/avatars/avatar-b.png',
+    src: asset('portrait-dark-overcoat.webp'),
     label: 'The Tactician',
-    desc: 'Dark hair, black coat, intense and focused',
+    desc: 'Swept-back dark hair, stubble and black overcoat',
   },
   {
     id: 'avatar-c',
-    src: '/assets/avatars/avatar-c.png',
-    label: 'The Veteran',
-    desc: 'Experienced, composed, tactical authority',
-  },
-  {
-    id: 'avatar-d',
-    src: '/assets/avatars/avatar-d.png',
-    label: 'The Visionary',
-    desc: 'Ambitious, modern thinker, forward-looking',
+    src: asset('portrait-short-hair-blazer.webp'),
+    label: 'The Strategist',
+    desc: 'Short dark hair, black blazer and high-neck top',
   },
   {
     id: 'avatar-e',
-    src: '/assets/avatars/avatar-e.png',
-    label: 'The Powerhouse',
-    desc: 'Dark-skinned, beard, zip jacket, physical authority',
-  },
-  {
-    id: 'avatar-f',
-    src: '/assets/avatars/avatar-f.png',
-    label: 'The Disciplinarian',
-    desc: 'Black man, formal overcoat, sharp and precise',
+    src: asset('portrait-beard-coat.webp'),
+    label: 'The Standard Setter',
+    desc: 'Short textured hair, full beard and dark coat',
   },
   {
     id: 'avatar-g',
-    src: '/assets/avatars/avatar-g.png',
+    src: asset('portrait-training-jacket.webp'),
     label: 'The Prodigy',
-    desc: 'Young, black man, tracksuit, hungry to prove himself',
+    desc: 'Short textured hair and black training jacket',
   },
 ];
 
 export const DEFAULT_AVATAR_ID = 'avatar-b';
 
+// Earlier saves could select these IDs, which previously pointed to scenery.
+const AVATAR_ALIASES = { 'avatar-d': 'avatar-a', 'avatar-f': 'avatar-e' };
+
 export function getAvatarById(id) {
-  return AVATARS.find(a => a.id === id) || AVATARS.find(a => a.id === DEFAULT_AVATAR_ID);
+  const resolvedId = AVATAR_ALIASES[id] || id;
+  return AVATARS.find((avatar) => avatar.id === resolvedId)
+    || AVATARS.find((avatar) => avatar.id === DEFAULT_AVATAR_ID);
 }
 
-// ── Environment / Background Images ─────────────────────────────────────────
-
 export const ENV = {
-  /** Green neon player tunnel — looking out onto pitch. Best for: Splash, Title */
-  tunnelGreen: '/assets/environments/tunnel-green.png',
+  /** Neon green tunnel opening onto a floodlit pitch. */
+  tunnelGreen: asset('tunnel-green.webp'),
 
-  /** Red dressing room corridor leading to pitch. Best for: Appointment Reveal */
-  tunnelRed: '/assets/environments/tunnel-red.png',
+  /** Red-lit changing-room corridor leading towards the stadium. */
+  tunnelRed: asset('corridor-red.webp'),
 
-  /** Aerial stadium top-down view, green pitch. Best for: Main Menu left panel */
-  stadiumAerial: '/assets/environments/stadium-aerial.png',
+  /** Elevated grandstand view; retained key for existing page imports. */
+  stadiumAerial: asset('stadium-grandstand.webp'),
 
-  /** Full stadium interior, floodlights at night. Best for: Main Menu, HQ */
-  stadiumNight: '/assets/environments/stadium-night.png',
+  /** Wide view of the illuminated stadium bowl at night. */
+  stadiumNight: asset('stadium-grandstand.webp'),
 
-  /** Pitch-level view, sunset, dramatic clouds. Best for: World Explorer, Career Mode */
-  stadiumPitch: '/assets/environments/stadium-pitch.png',
+  /** Low pitch-side view beneath a sunset sky and floodlights. */
+  stadiumPitch: asset('pitch-sunset.webp'),
 
-  /** Duplicate tunnel-green used as second tunnel variant */
-  stadiumTunnel2: '/assets/environments/stadium-tunnel2.png',
+  /** Alternate role sharing the available green tunnel photograph. */
+  stadiumTunnel2: asset('tunnel-green.webp'),
 
-  /** Luxury manager's office overlooking a lit stadium at night. Best for: HQ */
-  managerOffice: '/assets/environments/manager-office.png',
+  /** Warmly lit office overlooking a stadium through full-height windows. */
+  managerOffice: asset('manager-office.webp'),
 };

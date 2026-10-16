@@ -1,179 +1,110 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { tokens } from '../styles/tokens.js';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useGame } from '../context/useGame.js';
 import { CLUBS, LEAGUES } from '../data/clubs.js';
+import { getAvatarById } from '../data/assets.js';
+import { getReadiness, exportBackup } from '../data/football.js';
+import { Button, Chip, EmptyState, Field, PageHeader, Meter } from '../components/ui/Primitives.jsx';
+import { Icon } from '../components/ui/Icon.jsx';
 import { ClubCrest } from '../components/ui/ClubCrest.jsx';
-import { Button } from '../components/ui/Button.jsx';
-import { ConfirmModal } from '../components/ui/Modal.jsx';
-
+import { Modal, ConfirmModal } from '../components/ui/Modal.jsx';
+import { usePageTitle } from '../hooks/usePageTitle.js';
 export default function CareerLibrary() {
-  const navigate = useNavigate();
-  const { careers, deleteCareer, renameCareer, openCareer, currentCareerId } = useGame();
-  const [renaming, setRenaming] = useState(null);
-  const [renameName, setRenameName] = useState('');
-  const [deleting, setDeleting] = useState(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    document.title = 'SIDELINE — Career Library';
-    const t = setTimeout(() => setVisible(true), 60);
-    return () => clearTimeout(t);
-  }, []);
-
-  const handleOpen = (career) => {
-    openCareer(career.id);
-    navigate(`/hq/${career.id}`);
-  };
-
-  const sortedCareers = [...careers].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-
-  return (
-    <div style={{ minHeight: '100vh', background: tokens.bg }}>
-      <header style={{
-        borderBottom: `1px solid ${tokens.border}`,
-        padding: '0 clamp(16px, 4vw, 40px)',
-        height: 56,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        background: tokens.bg,
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-      }}>
-        <button onClick={() => navigate('/menu')} style={{
-          background: 'none', border: 'none', color: tokens.muted, cursor: 'pointer',
-          fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: tokens.font,
-        }}>← Main Menu</button>
-        <span style={{ color: tokens.border }}>|</span>
-        <span style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: tokens.muted }}>Career Library</span>
-      </header>
-
-      <main style={{
-        maxWidth: 760,
-        margin: '0 auto',
-        padding: 'clamp(32px, 5vw, 56px) clamp(16px, 4vw, 40px)',
-        opacity: visible ? 1 : 0,
-        transition: 'opacity 0.4s ease',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40 }}>
-          <div>
-            <p style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: tokens.accent, fontWeight: 700, marginBottom: 6 }}>Career Library</p>
-            <h1 style={{ fontFamily: tokens.fontDisplay, fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 900 }}>
-              Your Careers
-            </h1>
-            <p style={{ color: tokens.muted, fontSize: 13, marginTop: 4 }}>
-              {careers.length} career{careers.length !== 1 ? 's' : ''} saved locally
-            </p>
-          </div>
-          <Button onClick={() => navigate('/career/new')}>+ New Career</Button>
-        </div>
-
-        {sortedCareers.length === 0 ? (
-          <div style={{
-            padding: '60px 24px',
-            textAlign: 'center',
-            border: `1px dashed ${tokens.border}`,
-            borderRadius: tokens.radius.xl,
-          }}>
-            <div style={{ fontSize: 40, marginBottom: 16 }}>⚽</div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>No careers yet</h2>
-            <p style={{ color: tokens.muted, fontSize: 14, marginBottom: 24 }}>
-              Start a new career to see it saved here.
-            </p>
-            <Button onClick={() => navigate('/career/new')}>Start New Career</Button>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {sortedCareers.map(career => {
-              const club = CLUBS.find(c => c.id === career.clubId);
-              const league = club ? LEAGUES.find(l => l.id === club.leagueId) : null;
-              const isCurrent = career.id === currentCareerId;
-              const isRenaming = renaming === career.id;
-
-              return (
-                <div
-                  key={career.id}
-                  style={{
-                    background: tokens.surface,
-                    border: `1px solid ${isCurrent ? tokens.accentBorder : tokens.border}`,
-                    borderRadius: tokens.radius.xl,
-                    overflow: 'hidden',
-                    transition: `border-color ${tokens.transition.base}`,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 20px' }}>
-                    {club ? <ClubCrest club={club} size={48} /> : (
-                      <div style={{ width: 48, height: 48, borderRadius: '50%', background: tokens.bg, border: `1px solid ${tokens.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>⚽</div>
-                    )}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      {isRenaming ? (
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <input
-                            value={renameName}
-                            onChange={e => setRenameName(e.target.value)}
-                            autoFocus
-                            onKeyDown={e => {
-                              if (e.key === 'Enter') { renameCareer(career.id, renameName); setRenaming(null); }
-                              if (e.key === 'Escape') setRenaming(null);
-                            }}
-                            style={{
-                              background: tokens.bg, border: `1px solid ${tokens.accent}`,
-                              borderRadius: tokens.radius.md, color: tokens.text, fontSize: 14,
-                              padding: '6px 10px', flex: 1, outline: 'none', fontFamily: tokens.font,
-                            }}
-                          />
-                          <button onClick={() => { renameCareer(career.id, renameName); setRenaming(null); }} style={{ background: tokens.accent, border: 'none', color: '#000', padding: '6px 12px', borderRadius: tokens.radius.md, cursor: 'pointer', fontWeight: 700, fontSize: 11, fontFamily: tokens.font }}>Save</button>
-                          <button onClick={() => setRenaming(null)} style={{ background: 'none', border: 'none', color: tokens.muted, cursor: 'pointer', fontSize: 12, fontFamily: tokens.font }}>Cancel</button>
-                        </div>
-                      ) : (
-                        <>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-                            <h2 style={{ fontSize: 15, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {career.name}
-                            </h2>
-                            {isCurrent && (
-                              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 4, background: tokens.accentDim, color: tokens.accent }}>Current</span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: 11, color: tokens.muted }}>
-                            {club?.name || '—'} · {league?.name || '—'} · {career.setupType === 'quick' ? 'Quick Start' : 'Custom Career'}
-                            {career.confirmedAt && ` · ${new Date(career.confirmedAt).toLocaleDateString()}`}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    {!isRenaming && (
-                      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                        <Button variant="ghost" size="sm" onClick={() => handleOpen(career)}>
-                          Open
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => { setRenaming(career.id); setRenameName(career.name); }}>
-                          Rename
-                        </Button>
-                        <Button variant="danger" size="sm" onClick={() => setDeleting(career.id)}>
-                          Delete
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </main>
-
-      <ConfirmModal
-        open={!!deleting}
-        onClose={() => setDeleting(null)}
-        onConfirm={() => deleteCareer(deleting)}
-        title="Delete Career"
-        message="Are you sure you want to delete this career? This cannot be undone."
-        confirmLabel="Delete"
-        danger
-      />
-    </div>
-  );
+  usePageTitle('Career library');
+  const navigate = useNavigate(),
+    {
+      careers,
+      currentCareerId,
+      openCareer,
+      renameCareer,
+      deleteCareer
+    } = useGame();
+  const [renaming, setRenaming] = useState(null),
+    [name, setName] = useState(''),
+    [deleting, setDeleting] = useState(null);
+  return <main>
+<PageHeader eyebrow="Your stories" title="There’s always more to write." description="Return to a familiar touchline, or start a new chapter." action={<Link to="/career/new" className="btn btn-primary">
+<Icon name="plus" size={16} /> New career</Link>} />
+<div className="page-content">{!careers.length ? <div className="panel">
+<EmptyState icon="folder" title="Your first chapter is waiting." description="Create a manager, find a club and give your football a home. Your saved careers will be right here." action={<Link to="/career/new" className="btn btn-primary">Start your story <Icon name="arrow" size={16} />
+</Link>} />
+</div> : <>
+<div className="row-between" style={{
+          marginBottom: 22
+        }}>
+<p className="small muted">{careers.length} {careers.length === 1 ? 'career' : 'careers'} on this device</p>
+<Button size="sm" variant="ghost" icon="download" onClick={() => exportBackup(careers)}>Export all careers</Button>
+</div>
+<div className="library-grid">{careers.toSorted((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).map(c => {
+            const club = CLUBS.find(club => club.id === c.clubId),
+              readiness = getReadiness(c.workspace || {});
+            return <article key={c.id} className="panel save-card">
+<div className="save-card-top">
+<div>
+<p className="eyebrow">{LEAGUES.find(l => l.id === club?.leagueId)?.name || 'Your career'}</p>
+<h2>{club?.name || c.clubName}</h2>
+</div>
+<ClubCrest club={club} size={45} />
+</div>
+<div className="manager-line">
+<img src={getAvatarById(c.avatarId).src} alt="" />
+<div>
+<h3>{c.managerName || c.name}</h3>
+<p className="tiny muted" style={{
+                    marginTop: 5
+                  }}>{c.name}</p>
+</div>{currentCareerId === c.id && <Chip tone="accent" style={{
+                  marginLeft: 'auto'
+                }}>Active</Chip>}</div>
+<div className="row-between" style={{
+                marginBottom: 10
+              }}>
+<span className="tiny muted">Pre-season preparation</span>
+<span className="tiny accent">{readiness}%</span>
+</div>
+<Meter value={readiness} label={'Preparation for ' + c.name} />
+<div className="save-meta" style={{
+                marginTop: 20
+              }}>
+<span>{c.setupType === 'quick' ? 'Quick start' : 'Custom career'}</span>
+<span>Saved {new Date(c.updatedAt || c.createdAt || c.confirmedAt).toLocaleDateString('en-GB')}</span>
+</div>
+<div className="save-actions">
+<Button endIcon="arrow" style={{
+                  flex: 1
+                }} onClick={() => {
+                  openCareer(c.id);
+                  navigate('/hq/' + c.id);
+                }}>Return to club</Button>
+<button className="icon-button" aria-label={'Rename ' + c.name} onClick={() => {
+                  setName(c.name);
+                  setRenaming(c.id);
+                }}>
+<Icon name="book" size={16} />
+</button>
+<button className="icon-button" aria-label={'Delete ' + c.name} onClick={() => setDeleting(c.id)}>
+<Icon name="close" size={16} />
+</button>
+</div>
+</article>;
+          })}</div>
+</>}<footer className="page-footer">
+<span>Saved on this device. Export a backup to keep your work safe.</span>
+<Link to="/settings?tab=data">Manage saved data <Icon name="arrow" size={12} />
+</Link>
+</footer>
+</div>
+<Modal open={Boolean(renaming)} onClose={() => setRenaming(null)} title="Name this chapter">
+<Field label="Career name">
+<input maxLength={100} value={name} onChange={e => setName(e.target.value)} />
+</Field>
+<div className="modal-actions">
+<Button disabled={!name.trim()} onClick={() => {
+          renameCareer(renaming, name);
+          setRenaming(null);
+        }}>Save name</Button>
+</div>
+</Modal>
+<ConfirmModal open={Boolean(deleting)} onClose={() => setDeleting(null)} title="Close this chapter?" message="This career and its saved preparation will be removed from this device. Export a backup first if you want to keep it." danger confirmLabel="Delete career" onConfirm={() => deleteCareer(deleting)} />
+</main>;
 }

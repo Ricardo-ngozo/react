@@ -1,16 +1,8 @@
-import { useState, useEffect } from 'react';
-import {
-  createBrowserRouter,
-  RouterProvider,
-  useRouteError,
-  isRouteErrorResponse,
-  useNavigate,
-} from 'react-router-dom';
-
+import { useEffect } from 'react';
+import { createBrowserRouter, RouterProvider, Outlet, Link, useRouteError, useLocation } from 'react-router-dom';
 import { GameProvider } from './context/GameContext.jsx';
-import { globalCSS, tokens } from './styles/tokens.js';
-
-import SplashScreen from './pages/SplashScreen.jsx';
+import { useGame } from './context/useGame.js';
+import { Wordmark } from './components/ui/Primitives.jsx';
 import TitleScreen from './pages/TitleScreen.jsx';
 import MainMenu from './pages/MainMenu.jsx';
 import Settings from './pages/Settings.jsx';
@@ -22,87 +14,81 @@ import TeamSelection from './pages/TeamSelection.jsx';
 import Appointment from './pages/Appointment.jsx';
 import CareerLibrary from './pages/CareerLibrary.jsx';
 import Headquarters from './pages/Headquarters.jsx';
-
-// ── 404 / Error page ─────────────────────────────────────────────────────────
+function Layout() {
+  const {
+    storageError
+  } = useGame();
+  const {
+    pathname
+  } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return <>
+<a className="skip-link" href="#main-content">Skip to content</a>
+<div id="main-content" className="route-view route-enter" key={pathname}>
+<Outlet />
+</div>{storageError && <div role="alert" className="storage-alert">{storageError} <Link to="/settings?tab=data">Manage backups</Link>
+</div>}</>;
+}
 function NotFound() {
   const error = useRouteError();
-  const navigate = useNavigate();
-  const isNotFound = !error || (isRouteErrorResponse(error) && error.status === 404);
-
-  useEffect(() => {
-    document.title = 'SIDELINE — Not Found';
-  }, []);
-
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: tokens.bg,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 24,
-      textAlign: 'center',
-    }}>
-      <p style={{ fontSize: 'clamp(64px, 12vw, 96px)', fontWeight: 900, color: tokens.border, lineHeight: 1, marginBottom: 16, fontFamily: tokens.fontDisplay }}>
-        {isNotFound ? '404' : 'ERR'}
-      </p>
-      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
-        {isNotFound ? 'Page not found' : 'Something went wrong'}
-      </h1>
-      <p style={{ fontSize: 14, color: tokens.muted, maxWidth: 320, lineHeight: 1.6, marginBottom: 32 }}>
-        {isNotFound ? 'This route doesn\'t exist. Head back to the main menu.' : 'An unexpected error occurred.'}
-      </p>
-      <button
-        onClick={() => navigate('/menu')}
-        style={{
-          fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: '#000', background: tokens.accent, border: 'none',
-          borderRadius: tokens.radius.md, padding: '11px 24px', cursor: 'pointer',
-          fontFamily: tokens.font,
-        }}
-      >
-        Back to Menu
-      </button>
-    </div>
-  );
+  return <main className="empty-state" style={{
+    minHeight: '100dvh',
+    justifyContent: 'center'
+  }}>
+<Wordmark />
+<p className="eyebrow" style={{
+      marginTop: 30
+    }}>{error ? 'Something went off the pitch' : 'Offside. Page not found.'}</p>
+<h1>Let’s get you back.</h1>
+<p>Your saved careers are still in your library.</p>
+<Link to="/menu" className="btn btn-primary">Main menu →</Link>
+</main>;
 }
-
-// ── Router ────────────────────────────────────────────────────────────────────
-const router = createBrowserRouter([
-  { path: '/', element: <TitleScreen /> },
-  { path: '/menu', element: <MainMenu /> },
-  { path: '/settings', element: <Settings /> },
-  { path: '/career/new', element: <NewCareer /> },
-  { path: '/career/quick', element: <QuickStart /> },
-  { path: '/career/setup/:step', element: <CareerSetup /> },
-  { path: '/career/clubs', element: <TeamSelection /> },
-  { path: '/explore', element: <WorldExplorer /> },
-  { path: '/appointment/:id', element: <Appointment /> },
-  { path: '/careers', element: <CareerLibrary /> },
-  { path: '/hq/:id', element: <Headquarters /> },
-  { path: '/404', element: <NotFound /> },
-  { path: '*', element: <NotFound />, errorElement: <NotFound /> },
-]);
-
-// ── Root ──────────────────────────────────────────────────────────────────────
+const router = createBrowserRouter([{
+  element: <Layout />,
+  errorElement: <NotFound />,
+  children: [{
+    path: '/',
+    element: <TitleScreen />
+  }, {
+    path: '/menu',
+    element: <MainMenu />
+  }, {
+    path: '/settings',
+    element: <Settings />
+  }, {
+    path: '/career/new',
+    element: <NewCareer />
+  }, {
+    path: '/career/quick',
+    element: <QuickStart />
+  }, {
+    path: '/career/setup/:step',
+    element: <CareerSetup />
+  }, {
+    path: '/career/clubs',
+    element: <TeamSelection />
+  }, {
+    path: '/explore',
+    element: <WorldExplorer />
+  }, {
+    path: '/appointment/:id',
+    element: <Appointment />
+  }, {
+    path: '/careers',
+    element: <CareerLibrary />
+  }, {
+    path: '/hq/:id',
+    element: <Headquarters />
+  }, {
+    path: '*',
+    element: <NotFound />
+  }]
+}]);
 export default function App() {
-  const [showSplash, setShowSplash] = useState(
-    () => !sessionStorage.getItem('sideline_visited')
-  );
-
-  // No effect needed — lazy state init handles session check
-
-  const handleSplashComplete = () => {
-    sessionStorage.setItem('sideline_visited', '1');
-    setShowSplash(false);
-  };
-
-  return (
-    <GameProvider>
-      <style>{globalCSS}</style>
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-      <RouterProvider router={router} />
-    </GameProvider>
-  );
+  return <GameProvider>
+<RouterProvider router={router} />
+</GameProvider>;
 }
